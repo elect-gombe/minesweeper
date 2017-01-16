@@ -10,6 +10,20 @@ label INIT
  var x,y
  width 40
  gosub SETPCG
+ print "    ==MINE SWEEPER=="
+ print ""
+ print " Fire : ÎÙ"
+ print " Start: ÊÀ¦ µ¸"
+ print " Ô¼ÞÙ¼: ¶°¿Ù¦ ²ÄÞ³"
+ print ""
+ print " **·¦Â¹Ã**"
+ print " ¼­³ÍÝ¦ ÊÀ¦ ÓÄÆ¼Ã ¼ÞÄÞ³ÃÞ ÎØÏ½"
+ print ""
+
+ print "  made by Gombe"
+ print ""
+
+
  dim s(2)
  s(0)=20
  s(1)=25
@@ -27,13 +41,12 @@ label ISGCLR
   for y=0 to s(1)-1
    v = f(x,y)
    if (v>=20ANDv=27)OR(v>=0ANDv<=7) then
-    j=1:print x;y;
+    j=1
     break
    endif
   next
   if j then break
  next
-print "gameclr:";j
 return j=0
 
 
@@ -53,7 +66,7 @@ label GMOVR
  var x,y
  for x=0 to s(0)-1
   for y=0 to s(1)-1
-   if f(x,y)=8 OR f(x,y)=28 then f(x,y)=18
+   if f(x,y)=8 then f(x,y)=18
   next
  next
 return
@@ -70,9 +83,19 @@ label GMCLR
 return
 
 
+rem clear field
+label clrfld
+ for x=0 to (s(0)-1)
+  for y=0 to (s(1)-1)
+   f(x,y)=0
+  next
+ next
+return
+
 rem make field
 label MKFLD
  var x,y,n,i,j,r
+
  i=0
  n = ARGS(1)
 
@@ -84,7 +107,6 @@ label MKFLD
      continue
     endif
    endif
-   print "(";x;",";y;")"
    t(i,0)=x
    t(i,1)=y
    i=i+1
@@ -95,7 +117,7 @@ label MKFLD
  if i<n then return 1
 
  rem random sort
- for j=0 to i
+ for j=0 to i-1
   r=rnd()%i
   x=t(j,0)
   y=t(j,1)
@@ -122,25 +144,52 @@ return
 label main
  var b,n,k,p,i
 while 1
- print "ÖºÊÊÞ[1-19]:";
- s(0)=val(input$())
- print "ÀÃ[1-25]:";
- s(1)=val(input$())
- print "¼Þ×²É ¶½Þ[1-300?]:";
- n=val(input$())
+ print " 1: ¶ÝÀÝ   ,8 *8 ,10ºÉ ¼Þ×²"
+ print " 2: ÌÂ³    ,12*12,25ºÉ ¼Þ×²"
+ print " 3: ´·½Êß°Ä,19*19,60ºÉ ¼Þ×²"
+ print " 4: ¶½ÀÑ   ,n *m ,k ºÉ ¼Þ×²"
 
+ print " ÅÝ²ÄÞ Ê?[1-4]:";
+ k=val(input$())
+
+ if k=1 then
+  s(0)=8
+  s(1)=8
+  n=10
+ elseif k=2 then
+  s(0)=12
+  s(1)=12
+  n=25
+ elseif k=3 then
+  s(0)=19
+  s(1)=19
+  n=60
+ else
+  print "ÖºÊÊÞ[1-19]:";
+  s(0)=val(input$())
+  print "ÀÃ[1-19]:";
+  s(1)=val(input$())
+  print "¼Þ×²É ¶½Þ[1-300?]:";
+  n=val(input$())
+ endif
+
+ cls
+ gosub clrfld
  gosub PRMAP
 
  p=0
+ b=0
  while 1
   k=keys()
   if p!=k OR (k!=0 AND i>15)then
    b=gosub(keytas,b,n)
    if gosub(isgovr) then
+    print "Game Over"
     gosub GMOVR
     gosub PRMAP
     break
    elseif gosub(ISGCLR) then
+    print "Game Clear"
     gosub GMCLR
     gosub PRMAP
     break
@@ -153,23 +202,28 @@ while 1
   i=i+1
   wait 1
  wend
- break
-wend
+ print "Enter to continue"
  z$=input$()
+ cls
+wend
 return
 
 label keytas
  if keys(4) then
   c(0)=c(0)-1
+  if c(0)<0 then c(0)=s(0)-1
  endif
  if keys(8) then
   c(0)=c(0)+1
+  if c(0)>=s(0) then c(0)=0
  endif
  if keys(1) then
   c(1)=c(1)-1
+  if c(1)<0 then c(1)=s(1)-1
  endif
  if keys(2) then
   c(1)=c(1)+1
+  if c(1)>=s(1) then c(1)=0
  endif
  if keys(32) then
   cursor 0,s(1)
@@ -180,6 +234,7 @@ label keytas
  if (keys()=16)AND(ARGS(1)=1) then
   gosub putflg
  endif
+
 return ARGS(1)
 
 
